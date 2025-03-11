@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,8 +28,8 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private final BookingMapper bookingMapper;
 
+    @Transactional
     @Override
     public BookingDto createBooking(long userId, BookingInputDto bookingInputDto) {
         User user = userRepository.findById(userId).orElseThrow(
@@ -38,10 +39,11 @@ public class BookingServiceImpl implements BookingService {
         if (!item.getAvailable()) {
             throw new ConditionException("Вещь с id = " + item.getId() + "не доступна для бронирования");
         }
-        Booking booking = bookingMapper.toBooking(bookingInputDto, item, user);
-        return bookingMapper.toBookingDto(bookingRepository.save(booking));
+        Booking booking = BookingMapper.toBooking(bookingInputDto, item, user);
+        return BookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
+    @Transactional
     @Override
     public BookingDto approveBooking(long userId, long bookingId, boolean approved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(
@@ -55,7 +57,7 @@ public class BookingServiceImpl implements BookingService {
         } else {
             booking.setStatus(BookingStatus.REJECTED);
         }
-        return bookingMapper.toBookingDto(bookingRepository.save(booking));
+        return BookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -70,7 +72,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ConditionException("Просмотр бронирования доступен только владельцу вещи или человеку," +
                     " который забронировал вещь");
         }
-        return bookingMapper.toBookingDto(booking);
+        return BookingMapper.toBookingDto(booking);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateDataException;
@@ -15,7 +16,6 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
 
     @Override
     public Collection<UserDto> getAllUsers() {
@@ -24,15 +24,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(long id) {
-        return userMapper.toUserDto(userRepository.findById(id).orElseThrow(
+        return UserMapper.toUserDto(userRepository.findById(id).orElseThrow(
                 () -> new ObjectNotFoundException("Пользователь с id = " + id + " не найден")));
     }
 
+    @Transactional
     @Override
     public UserDto createUser(UserDto user) {
-        return userMapper.toUserDto(userRepository.save(userMapper.toUser(user)));
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(user)));
     }
 
+    @Transactional
     @Override
     public UserDto updateUser(long id, UserDto userDto) {
         User user = userRepository.findById(id).orElseThrow(
@@ -49,9 +51,10 @@ public class UserServiceImpl implements UserService {
             }
             user.setEmail(userDto.getEmail());
         }
-        return userMapper.toUserDto(userRepository.save(user));
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
+    @Transactional
     @Override
     public void deleteUser(long id) {
         userRepository.deleteById(id);

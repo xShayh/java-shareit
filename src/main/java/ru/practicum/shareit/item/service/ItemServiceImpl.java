@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -28,18 +29,18 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
-    private final ItemMapper itemMapper;
-    private final CommentMapper commentMapper;
 
+    @Transactional
     @Override
     public ItemDto createItem(long userId, ItemDto item) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ObjectNotFoundException("Пользователь с id = " + userId + " не найден"));
         item.setOwner(user);
-        return itemMapper.toItemDto(itemRepository.save(itemMapper.toItem(item)));
+        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(item)));
 
     }
 
+    @Transactional
     @Override
     public ItemDto updateItem(long userId, long id, ItemDto itemDto) {
         User user = userRepository.findById(userId).orElseThrow(
@@ -60,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-        return itemMapper.toItemDto(itemRepository.save(item));
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
@@ -82,7 +83,7 @@ public class ItemServiceImpl implements ItemService {
         Collection<Comment> comments = commentRepository.findAllByItemId(id);
         Collection<CommentDto> commentsDto = comments.stream().map(CommentMapper::toCommentDto).toList();
 
-        ItemDto itemDto = itemMapper.toItemDto(item, lastBooking, nextBooking, commentsDto);
+        ItemDto itemDto = ItemMapper.toItemDto(item, lastBooking, nextBooking, commentsDto);
         return itemDto;
     }
 
@@ -140,6 +141,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    @Transactional
     @Override
     public CommentDto addComment(long userId, long itemId, CommentDto comment) {
         User user = userRepository.findById(userId).orElseThrow(
@@ -153,6 +155,6 @@ public class ItemServiceImpl implements ItemService {
         }
         comment.setItem(item);
         comment.setAuthorName(user.getName());
-        return commentMapper.toCommentDto(commentRepository.save(commentMapper.toComment(comment, user)));
+        return CommentMapper.toCommentDto(commentRepository.save(CommentMapper.toComment(comment, user)));
     }
 }

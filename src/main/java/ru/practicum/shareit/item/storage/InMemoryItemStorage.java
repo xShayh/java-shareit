@@ -22,7 +22,6 @@ import java.util.HashMap;
 public class InMemoryItemStorage implements ItemStorage {
     private long nextId = 0;
     private final Map<Long, Item> items = new HashMap<>();
-    private final ItemMapper itemMapper;
 
     @Override
     public Item createItem(User user, ItemDto item) {
@@ -37,7 +36,7 @@ public class InMemoryItemStorage implements ItemStorage {
         if (item.getAvailable() == null) {
             throw new ConditionException("Статус доступности вещи не может быть пустым");
         }
-        Item itemToStorage = itemMapper.toItem(item);
+        Item itemToStorage = ItemMapper.toItem(item);
         items.put(item.getId(), itemToStorage);
         return itemToStorage;
     }
