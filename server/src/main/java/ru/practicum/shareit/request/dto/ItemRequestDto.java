@@ -18,14 +18,8 @@ import java.util.Collection;
 @Builder
 public class ItemRequestDto {
     private long id;
-
-    @NotNull(message = "Поле description не может быть пустым")
-    @NotBlank(message = "Поле description не может состоять из символов пробела")
     private String description;
-
     private User requester;
-
     private LocalDateTime created;
-
     private Collection<ItemResponseDto> items;
 }

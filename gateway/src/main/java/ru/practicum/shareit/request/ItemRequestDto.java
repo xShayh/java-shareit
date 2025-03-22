@@ -16,14 +16,10 @@ import java.util.Collection;
 @AllArgsConstructor
 public class ItemRequestDto {
     private long id;
-
     @NotNull(message = "Поле description не может быть null")
     @NotBlank(message = "Поле description не может быть пустым")
     private String description;
-
     private UserDto requester;
-
     private LocalDateTime created;
-
     private Collection<ItemDto> items;
 }

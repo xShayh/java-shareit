@@ -18,18 +18,9 @@ import java.util.Collection;
 @Builder
 public class ItemDto {
     private long id;
-
-    @NotNull(message = "Название не может быть пустым")
-    @NotBlank(message = "Название не может состоять из символов пробела")
     private String name;
-
-    @NotNull(message = "Описание не может быть пустым")
-    @NotBlank(message = "Описание не может состоять из символов пробела")
     private String description;
-
-    @NotNull(message = "Статус доступности не может быть пустым")
     private Boolean available;
-
     private User owner;
     private ItemRequest request;
     private LocalDateTime lastBooking;
