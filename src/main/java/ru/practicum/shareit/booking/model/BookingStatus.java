@@ -1,9 +1,8 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
 public enum BookingStatus {
-    PENDING,
+    WAITING,
     APPROVED,
     REJECTED,
     CANCELED,
-    COMPLETED
 }

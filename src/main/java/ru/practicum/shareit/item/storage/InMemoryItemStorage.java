@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.storage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.ConditionException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +22,6 @@ import java.util.HashMap;
 public class InMemoryItemStorage implements ItemStorage {
     private long nextId = 0;
     private final Map<Long, Item> items = new HashMap<>();
-    private final ItemMapper itemMapper;
 
     @Override
     public Item createItem(User user, ItemDto item) {
@@ -37,7 +36,7 @@ public class InMemoryItemStorage implements ItemStorage {
         if (item.getAvailable() == null) {
             throw new ConditionException("Статус доступности вещи не может быть пустым");
         }
-        Item itemToStorage = itemMapper.toItem(item);
+        Item itemToStorage = ItemMapper.toItem(item);
         items.put(item.getId(), itemToStorage);
         return itemToStorage;
     }
@@ -48,7 +47,7 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new ObjectNotFoundException("Пользователь может обновлять только свои вещи");
         }
         if (!items.containsKey(id)) {
-            throw new ObjectNotFoundException("Вещь с id " + id + " не найдена");
+            throw new ObjectNotFoundException("Вещь с id = " + id + " не найдена. Обновление невозможно");
         }
         Item itemFromStorage = items.get(id);
         itemFromStorage.setId(id);
@@ -59,12 +58,7 @@ public class InMemoryItemStorage implements ItemStorage {
             itemFromStorage.setDescription(item.getDescription());
         }
         if (item.getAvailable() != null) {
-            if (item.getAvailable().equals("true")) {
-                itemFromStorage.setAvailable(true);
-            }
-            if (item.getAvailable().equals("false")) {
-                itemFromStorage.setAvailable(false);
-            }
+            itemFromStorage.setAvailable(item.getAvailable());
         }
         items.put(itemFromStorage.getId(), itemFromStorage);
         return itemFromStorage;
@@ -92,7 +86,7 @@ public class InMemoryItemStorage implements ItemStorage {
             return new ArrayList<>();
         } else {
             return items.values().stream()
-                    .filter(Item::isAvailable)
+                    .filter(Item::getAvailable)
                     .filter(item -> item.getName().equalsIgnoreCase(text) ||
                             item.getDescription().equalsIgnoreCase(text))
                     .toList();
